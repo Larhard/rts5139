@@ -34,3 +34,9 @@
 # Debug files
 *.dSYM/
 
+# Kernel Modules
+*.cmd
+*.mod.c
+.tmp*
+*.symvers
+*.order
