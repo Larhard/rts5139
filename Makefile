@@ -25,7 +25,15 @@
 # Makefile for the RTS51xx USB Card Reader drivers.
 #
 
-obj-m := rts5139.o
+CP ?= cp -r
+
+MODULES = rts5139.ko
+KERNEL_VERSION = $(shell uname -r)
+KERNEL_DIR = /lib/modules/$(KERNEL_VERSION)
+BUILD_DIR = $(KERNEL_DIR)/build
+MODULES_INSTALL_DIR = $(KERNEL_DIR)/misc
+
+obj-m := $(MODULES:.ko=.o)
 
 ccflags-y := -Idrivers/scsi
 
@@ -41,3 +49,21 @@ rts5139-y :=				\
 		ms.o			\
 		sd_cprm.o		\
 		ms_mg.o
+
+all: modules
+
+modules:
+	$(MAKE) -C $(BUILD_DIR) M=$(PWD) modules
+
+clean:
+	$(MAKE) -C $(BUILD_DIR) M=$(PWD) clean
+
+install: all
+	$(CP) $(MODULES) $(MODULES_INSTALL_DIR)
+	depmod -a
+
+uninstall:
+	$(RM) $(addprefix $(dir $(MODULES_INSTALL_DIR)),$(MODULES))
+	depmod -a
+
+.PHONY: clean install
